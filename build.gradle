@@ -1,0 +1,59 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.6
+version = '1.0'
+
+repositories {
+    repositories {
+    jcenter {
+        url "http://jcenter.bintray.com/"
+    }
+}
+}
+
+jar {
+  manifest {
+    attributes(
+     	 'Main-Class': 'com.yunzhijia.open.Main',
+       	 'Implementation-Version': version
+    )
+  }
+}
+
+task fatJar(type: Jar) {
+  manifest.from jar.manifest
+  classifier = 'all'
+  from {
+    configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+  } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+  }
+  with jar
+}
+
+dependencies {
+ compile (
+ 	'com.alibaba:fastjson:1.1.37',
+	'com.mashape.unirest:unirest-java:1.4.7',
+ 	'commons-collections:commons-collections:3.2',
+	'commons-lang:commons-lang:2.5',
+	'ch.qos.logback:logback-classic:1.1.2',
+	'org.bouncycastle:bcprov-jdk15on:1.54',
+	"commons-codec:commons-codec:1.9",
+ )
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs 'repos'
+       }
+    }
+}
