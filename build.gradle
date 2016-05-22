@@ -15,7 +15,7 @@ repositories {
 jar {
   manifest {
     attributes(
-     	 'Main-Class': 'com.yunzhijia.open.Main',
+     	 'Main-Class': 'main.Main',
        	 'Implementation-Version': version
     )
   }
@@ -42,7 +42,6 @@ dependencies {
 	'commons-lang:commons-lang:2.5',
 	'ch.qos.logback:logback-classic:1.1.2',
 	'org.bouncycastle:bcprov-jdk15on:1.54',
-	"commons-codec:commons-codec:1.9",
  )
 }
 

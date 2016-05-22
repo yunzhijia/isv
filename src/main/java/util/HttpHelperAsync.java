@@ -1,7 +1,6 @@
 package util;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.net.BindException;
 import java.util.ArrayList;
@@ -9,7 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -46,15 +44,13 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import util.TimeCalcUtil;
-
 public class HttpHelperAsync {
 	
 	private static Logger logger = LoggerFactory.getLogger(HttpHelperAsync.class);
 	
 	private static final int DEFAULT_ASYNC_TIME_OUT = 10000;
-	private static final int MAX_TOTEL = Integer.parseInt(PropertiesUtils.HTTP_MAX_CONNECTION);
-    private static final int MAX_CONNECTION_PER_ROUTE = Integer.parseInt(PropertiesUtils.HTTP_MAX_CONNECTION_PER_ROUTE);
+	private static final int MAX_TOTEL = 100;
+    private static final int MAX_CONNECTION_PER_ROUTE = 100;
     public static final String UTF8 = "UTF-8";
 	public static final String APPLICATION_JSON = "application/json";
 	public static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
@@ -62,44 +58,6 @@ public class HttpHelperAsync {
 	private static Get get = new Get();
 	private static Post post = new Post();
 	private static PostJSON postJSON = new PostJSON();
-	
-	private static class PropertiesUtils {
-		
-		static Properties defaultProperty;
-		
-		public static String HTTP_MAX_CONNECTION;
-		public static String HTTP_MAX_CONNECTION_PER_ROUTE;
-		public static boolean debug;
-		
-		static {
-			try {
-				init("log4j.properties");
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			HTTP_MAX_CONNECTION = getProperty("HTTP_MAX_CONNECTION", "1000");
-			HTTP_MAX_CONNECTION_PER_ROUTE = getProperty("HTTP_MAX_CONNECTION_PER_ROUTE", "1000");
-			debug = Boolean.valueOf(getProperty("http.debug", "true"));
-		}
-		
-		public static void init(String config) throws Exception {
-			if (defaultProperty != null) {
-				defaultProperty.clear();
-			}
-			defaultProperty = new Properties();
-			InputStream in = PropertiesUtils.class.getClassLoader().getResourceAsStream(config);
-			defaultProperty.load(in);
-		}
-		
-		public static String getProperty(String property, String defaultValue) {
-			if (StringUtils.isEmpty(property)) {
-				logger.error("property name is null or empty!");
-				return null;
-			}
-			return defaultProperty.getProperty(property, defaultValue);
-		}
-		
-	}
 	
 	private static class HttpHelperAsyncClientHolder {
 		private static HttpHelperAsyncClient instance = new HttpHelperAsyncClient();
@@ -489,10 +447,8 @@ public class HttpHelperAsync {
 	}
 	
 	private final static void headerLog(HttpResponse response) {
-		if (PropertiesUtils.debug) {
-			Header[] headers = response.getAllHeaders();
-			headerLog(headers);
-		}
+		Header[] headers = response.getAllHeaders();
+		headerLog(headers);
 	}
 
 	private final static void headerLog(Header[] headers) {
