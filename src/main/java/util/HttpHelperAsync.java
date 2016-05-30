@@ -1,28 +1,9 @@
 package util;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.BindException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
+import org.apache.http.*;
 import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -41,8 +22,12 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.BindException;
+import java.util.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class HttpHelperAsync {
 	
@@ -181,7 +166,10 @@ public class HttpHelperAsync {
 	            if (respObject.getCode() == 200) {
 	                String encoding = ("" + resp.getFirstHeader("Content-Encoding")).toLowerCase();
 	                if (encoding.indexOf("gzip") > 0) {
-	                    entity = new GzipDecompressingEntity(entity);
+						HttpEntity entityOld = entity;
+						entity = new GzipDecompressingEntity(entity);
+						// Gzip返回一个新流,旧的要关闭
+						EntityUtils.consume(entityOld);
 	                }
 	                result = new String(EntityUtils.toByteArray(entity),UTF8);
 	                respObject.setContent(result);
@@ -203,6 +191,8 @@ public class HttpHelperAsync {
 
 	        } finally {
 	            EntityUtils.consumeQuietly(entity);
+				// 释放资源
+				httpClient.close();
 	        }
 	        return respObject;
 	    }
